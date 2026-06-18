@@ -5,10 +5,8 @@ const nextConfig = {
       { protocol: "https", hostname: "**" },
     ],
   },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: "2mb",
-    },
+  serverActions: {
+    bodySizeLimit: "2mb",
   },
 };
 

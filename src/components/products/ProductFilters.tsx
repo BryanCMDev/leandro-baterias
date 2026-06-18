@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 
 interface ProductFiltersProps {
   brands: { slug: string; name: string }[];
@@ -12,8 +11,6 @@ interface ProductFiltersProps {
 }
 
 export function ProductFilters({ brands, categories, currentBrand, currentCategory }: ProductFiltersProps) {
-  const searchParams = useSearchParams();
-
   return (
     <div className="flex flex-wrap gap-2">
       <Link
