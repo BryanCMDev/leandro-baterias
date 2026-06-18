@@ -11,7 +11,7 @@ async function getFeaturedProducts() {
     orderBy: { createdAt: "desc" },
     take: 8,
   });
-  return products;
+  return JSON.parse(JSON.stringify(products));
 }
 
 async function getBrands() {

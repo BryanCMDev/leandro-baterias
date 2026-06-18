@@ -11,5 +11,5 @@ export default async function AdminOrdersPage() {
     take: 100,
   });
 
-  return <AdminOrdersClient orders={orders} />;
+  return <AdminOrdersClient orders={JSON.parse(JSON.stringify(orders))} />;
 }

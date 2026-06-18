@@ -27,6 +27,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);
 
+  const serializedProducts = JSON.parse(JSON.stringify(products));
+
   const selectedBrand = brands.find((b) => b.slug === brandSlug);
 
   return (
@@ -36,13 +38,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           {selectedBrand ? `Baterías ${selectedBrand.name}` : "Todos los Productos"}
         </h1>
         <p className="text-secondary-500 mt-1">
-          {products.length} producto{products.length !== 1 ? "s" : ""} disponibles
+          {serializedProducts.length} producto{serializedProducts.length !== 1 ? "s" : ""} disponibles
         </p>
       </div>
 
       <ProductFilters brands={brands} categories={categories} currentBrand={brandSlug} currentCategory={categorySlug} />
 
-      {products.length === 0 ? (
+      {serializedProducts.length === 0 ? (
         <div className="text-center py-20">
           <div className="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">🔋</span>
@@ -52,7 +54,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {products.map((product) => (
+          {serializedProducts.map((product: any) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

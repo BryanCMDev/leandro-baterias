@@ -25,5 +25,5 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     take: 4,
   });
 
-  return <ProductDetailClient product={product} relatedProducts={relatedProducts} />;
+  return <ProductDetailClient product={JSON.parse(JSON.stringify(product))} relatedProducts={JSON.parse(JSON.stringify(relatedProducts))} />;
 }

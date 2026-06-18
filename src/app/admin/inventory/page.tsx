@@ -14,5 +14,5 @@ export default async function AdminInventoryPage() {
     take: 50,
   });
 
-  return <AdminInventoryClient products={products} movements={movements} />;
+  return <AdminInventoryClient products={JSON.parse(JSON.stringify(products))} movements={JSON.parse(JSON.stringify(movements))} />;
 }
