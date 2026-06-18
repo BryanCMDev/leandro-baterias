@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  YAPE
+  PLIN
+  CARD
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  passwordHash  String
+  name          String
+  phone         String?
+  role          UserRole   @default(CUSTOMER)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  orders        Order[]
+  cartItems     CartItem[]
+  invoices      Invoice[]
+}
+
+model Brand {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  logoUrl     String?
+  createdAt   DateTime  @default(now())
+
+  products    Product[]
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+
+  products    Product[]
+}
+
+model Product {
+  id              String         @id @default(cuid())
+  name            String
+  slug            String         @unique
+  sku             String         @unique
+  description     String?
+  specs           Json?
+  price           Decimal        @db.Decimal(10, 2)
+  costPrice       Decimal        @db.Decimal(10, 2)
+  stock           Int            @default(0)
+  minStock        Int            @default(5)
+  imageUrl        String?
+  isActive        Boolean        @default(true)
+  voltage         String?
+  capacity        String?
+  cca             String?
+  terminalType    String?
+  warranty        String?
+  brandId         String
+  categoryId      String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  brand           Brand          @relation(fields: [brandId], references: [id])
+  category        Category       @relation(fields: [categoryId], references: [id])
+  orderItems      OrderItem[]
+  cartItems       CartItem[]
+  inventoryMovements InventoryMovement[]
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  userId          String?
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  customerAddress String?
+  customerDoc     String?
+  subtotal        Decimal       @db.Decimal(10, 2)
+  tax             Decimal       @db.Decimal(10, 2)
+  total           Decimal       @db.Decimal(10, 2)
+  status          OrderStatus   @default(PENDING)
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user            User?         @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  invoice         Invoice?
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  subtotal    Decimal  @db.Decimal(10, 2)
+
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id])
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  invoiceNumber   String        @unique
+  orderId         String        @unique
+  userId          String?
+  ruc             String?
+  businessName    String?
+  type            String        @default("BOLETA")
+  subtotal        Decimal       @db.Decimal(10, 2)
+  tax             Decimal       @db.Decimal(10, 2)
+  total           Decimal       @db.Decimal(10, 2)
+  pdfUrl          String?
+  createdAt       DateTime      @default(now())
+
+  order           Order         @relation(fields: [orderId], references: [id])
+  user            User?         @relation(fields: [userId], references: [id])
+}
+
+model CartItem {
+  id          String   @id @default(cuid())
+  userId      String
+  productId   String
+  quantity    Int      @default(1)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id])
+}
+
+model InventoryMovement {
+  id          String       @id @default(cuid())
+  productId   String
+  quantity    Int
+  type        MovementType
+  reference   String?
+  notes       String?
+  createdAt   DateTime     @default(now())
+
+  product     Product      @relation(fields: [productId], references: [id])
+}

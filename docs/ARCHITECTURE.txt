@@ -1,0 +1,143 @@
+========================================
+  DIAGRAMA DE ARQUITECTURA DEL SISTEMA
+  Leandro Baterías - E-commerce + IA
+========================================
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                        CLIENTE (Web - Next.js)                      │
+│  ┌─────────────────────────────────────────────────────────────────┐│
+│  │  Frontend (React + Tailwind CSS + TypeScript)                   ││
+│  │  ┌───────────────────────────────────────────────────────────┐  ││
+│  │  │  Páginas:                                                  │  ││
+│  │  │  • Home / Landing Page                                     │  ││
+│  │  │  • Catálogo de Productos (con filtros por marca)           │  ││
+│  │  │  • Detalle de Producto                                     │  ││
+│  │  │  • Carrito de Compras                                      │  ││
+│  │  │  • Checkout (Yape, Plin, Tarjeta, Efectivo)                │  ││
+│  │  │  • Admin Dashboard                                         │  ││
+│  │  │  • Admin - Productos CRUD                                   │  ││
+│  │  │  • Admin - Órdenes                                          │  ││
+│  │  │  • Admin - Inventario                                       │  ││
+│  │  │  • Admin - Agente IA (LeoBot)                               │  ││
+│  │  └───────────────────────────────────────────────────────────┘  ││
+│  └─────────────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    BACKEND (Next.js API Routes)                      │
+│  ┌─────────────────────────────────────────────────────────────────┐│
+│  │  API Endpoints:                                                 ││
+│  │  • /api/products [GET, POST] - CRUD de productos                ││
+│  │  • /api/products/[id] [GET, PUT, DELETE]                        ││
+│  │  • /api/brands [GET] - Lista de marcas                          ││
+│  │  • /api/orders [GET, POST] - Gestión de órdenes                 ││
+│  │  • /api/orders/[id] [PATCH] - Actualizar estado                 ││
+│  │  • /api/inventory [GET] - Estado del inventario                 ││
+│  │  • /api/inventory/movement [POST] - Movimientos                 ││
+│  │  • /api/auth/login [POST] - Autenticación                       ││
+│  │  • /api/agent/chat [POST] - Agente Residente (Gemini)           ││
+│  │  • /api/agent/automation [GET] - Agente Automatización          ││
+│  └─────────────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────────┘
+              │                       │
+              ▼                       ▼
+┌─────────────────────────┐  ┌──────────────────────────────────────┐
+│   SUPABASE (PostgreSQL)  │  │   GOOGLE GEMINI AI (Vertex AI)       │
+│   ┌───────────────────┐  │  │   ┌──────────────────────────────┐  │
+│   │ Tablas:            │  │  │   │ Agente Residente:            │  │
+│   │ • User             │  │  │   │  • LeoBot - Chat IA         │  │
+│   │ • Brand            │  │  │   │  • Análisis de inventario   │  │
+│   │ • Category         │  │  │   │  • Reportes semanales       │  │
+│   │ • Product          │  │  │   │  • Predicciones de stock    │  │
+│   │ • Order            │  │  │   └──────────────────────────────┘  │
+│   │ • OrderItem        │  │  │   ┌──────────────────────────────┐  │
+│   │ • Invoice          │  │  │   │ Agente Automatización:        │  │
+│   │ • CartItem         │  │  │   │  • Alertas de stock bajo      │  │
+│   │ • InventoryMovement│  │  │   │  • Análisis de ventas         │  │
+│   └───────────────────┘  │  │   │  • Órdenes de reabastecimiento │  │
+└─────────────────────────┘  │   └──────────────────────────────┘  │
+                              └──────────────────────────────────────┘
+         │                                        │
+         └──────────────────┬─────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    DEPLOYMENT & HOSTING                             │
+│                                                                     │
+│   ┌─────────────┐     ┌─────────────┐     ┌───────────────────┐   │
+│   │   VERCEL     │     │   SUPABASE  │     │     GITHUB        │   │
+│   │ (Frontend +  │◄───►│ (Base de    │     │ (Repositorio +    │   │
+│   │  API Routes) │     │  Datos)     │     │  CI/CD)           │   │
+│   └─────────────┘     └─────────────┘     └───────────────────┘   │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+
+========================================
+  FLUJO DE INTERACCIÓN DE AGENTES IA
+========================================
+
+1. AGENTE RESIDENTE (LeoBot):
+   ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
+   │ Usuario  │────►│ API Chat │────►│ Gemini AI│────►│ Respuesta│
+   │ (pregunta)│    │ /agent   │    │ + Context│    │ Natural  │
+   └──────────┘     └──────────┘     │ de BD    │     └──────────┘
+                           │         └──────────┘
+                           ▼
+                    ┌──────────────┐
+                    │  SUPABASE DB │
+                    │ (datos reales)│
+                    └──────────────┘
+
+2. AGENTE DE AUTOMATIZACIÓN:
+   ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
+   │ Evento   │────►│ API      │────►│ Gemini AI│────►│ Alertas / │
+   │ (stock   │    │ /automate │    │ + DB     │    │ Recomend. │
+   │  bajo)   │    └──────────┘    │ Context   │     └──────────┘
+   └──────────┘                    └──────────┘
+         │
+         ▼
+   ┌──────────────┐
+   │  AUTOMATION  │
+   │  Dashboard   │
+   └──────────────┘
+
+
+========================================
+  ARQUITECTURA DE DATOS (ERD)
+========================================
+
+  ┌─────────┐       ┌──────────┐       ┌───────────┐
+  │  Brand  │       │ Product  │       │  Order    │
+  ├─────────┤       ├──────────┤       ├───────────┤
+  │ id PK   │◄──────│ id PK    │       │ id PK     │
+  │ name    │      │ brandId FK│──────►│ userId FK │
+  │ slug    │       │ catId FK │       │ orderNum  │
+  └─────────┘       │ name     │       │ total     │
+                    │ price    │       │ status    │
+  ┌─────────┐       │ stock    │       │ payMethod │
+  │ Category│       │ minStock │       └─────┬─────┘
+  ├─────────┤       │ specs    │             │
+  │ id PK   │◄──────│ ...      │       ┌─────▼─────┐
+  │ name    │       └──────────┘       │ OrderItem  │
+  │ slug    │            │             ├───────────┤
+  └─────────┘            │             │ id PK     │
+                         │             │ orderId FK│
+  ┌─────────┐            │             │ productId │
+  │CartItem │            │             │ quantity  │
+  ├─────────┤            │             └───────────┘
+  │ id PK   │            │
+  │ userId  │            │       ┌──────────────┐
+  │ prodId  │            │       │Invoice       │
+  │ qty     │            │       ├──────────────┤
+  └─────────┘            │       │ id PK        │
+                         │       │ orderId FK   │
+  ┌──────────────┐       │       │ invoiceNum   │
+  │InvMovement   │       │       │ type         │
+  ├──────────────┤       │       │ total        │
+  │ id PK        │       │       └──────────────┘
+  │ productId FK │───────┘
+  │ quantity     │
+  │ type         │
+  │ reference    │
+  └──────────────┘
