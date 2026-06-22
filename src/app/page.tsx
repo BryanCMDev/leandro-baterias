@@ -2,9 +2,10 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/products/ProductCard";
 import { Button } from "@/components/ui/Button";
+import type { ProductWithBrand } from "@/types";
 import { Battery, Truck, Shield, CreditCard, ArrowRight, Star } from "lucide-react";
 
-async function getFeaturedProducts() {
+async function getFeaturedProducts(): Promise<ProductWithBrand[]> {
   const products = await prisma.product.findMany({
     where: { isActive: true, stock: { gt: 0 } },
     include: { brand: true, category: true },
